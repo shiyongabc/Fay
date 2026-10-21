@@ -188,16 +188,47 @@ class MyServer:
         pass
 
     # 创建server
+    # def __connect(self):
+    #     self.__event_loop = asyncio.new_event_loop()
+    #     asyncio.set_event_loop(self.__event_loop)
+    #     self.__isExecute = True
+    #     if self.__server:
+    #         util.log(1, 'server already exist')
+    #         return
+    #     self.__server = websockets.serve(self.__handler, self.__host, self.__port, ping_interval=10, ping_timeout=5)
+    #     asyncio.get_event_loop().run_until_complete(self.__server)
+    #     asyncio.get_event_loop().run_forever()
+
     def __connect(self):
-        self.__event_loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(self.__event_loop)
-        self.__isExecute = True
-        if self.__server:
-            util.log(1, 'server already exist')
-            return
-        self.__server = websockets.serve(self.__handler, self.__host, self.__port, ping_interval=10, ping_timeout=5)
-        asyncio.get_event_loop().run_until_complete(self.__server)
-        asyncio.get_event_loop().run_forever()
+        """
+        在独立线程中启动 WebSocket 服务器
+        修复 Python 3.12+ 下 'no running event loop' 的问题
+        """
+        # 1. 为当前线程创建新的事件循环
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+
+        async def start_ws_server():
+            # 2. 在此循环中启动 WebSocket 服务
+            self.__server = await websockets.serve(
+                self.__handler,
+                self.__host,
+                self.__port,
+                ping_interval=10,
+                ping_timeout=5
+            )
+            # 保持服务运行，直到被停止
+            await self.__server.wait_closed()
+
+        try:
+            # 3. 运行协程直到完成（即服务器关闭）
+            loop.run_until_complete(start_ws_server())
+        except Exception as e:
+            print(f"[系统] WebSocket 服务异常退出: {e}")
+        finally:
+            # 4. 清理资源
+            if not loop.is_closed():
+                loop.close()
 
     # 往要发送的命令列表中，添加命令
     def add_cmd(self, content):

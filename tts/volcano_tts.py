@@ -18,7 +18,7 @@ class Speech:
     def __init__(self):
         self.appid = cfg.volcano_tts_appid
         self.access_token = cfg.volcano_tts_access_token
-        self.api_key = cfg.volcano_tts_api_key
+        #self.api_key = cfg.volcano_tts_api_key
         self.cluster = cfg.volcano_tts_cluster
         self.__history_data = []
 
