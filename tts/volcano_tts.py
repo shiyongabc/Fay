@@ -6,6 +6,11 @@ import time
 from utils import util, config_util
 from utils import config_util as cfg
 import wave
+import os
+import sys
+
+# 将当前文件所在目录加入模块搜索路径
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from volcano_tts_http_stream import tts_http_stream
 
 

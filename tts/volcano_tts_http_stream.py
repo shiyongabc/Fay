@@ -81,5 +81,5 @@ def tts_http_stream(txt):
         session.close()
     return None
 
-if __name__ == "__main__":
-    tts_http_stream("你好，我是小金，请问有什么可以帮助您吗？")
+# if __name__ == "__main__":
+#     tts_http_stream("你好，我是小金，请问有什么可以帮助您吗？")
