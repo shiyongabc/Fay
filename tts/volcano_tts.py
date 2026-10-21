@@ -6,12 +6,14 @@ import time
 from utils import util, config_util
 from utils import config_util as cfg
 import wave
+from volcano_tts_http_stream import tts_http_stream
 
 
 class Speech:
     def __init__(self):
         self.appid = cfg.volcano_tts_appid
         self.access_token = cfg.volcano_tts_access_token
+        self.api_key = cfg.volcano_tts_api_key
         self.cluster = cfg.volcano_tts_cluster
         self.__history_data = []
 
@@ -32,50 +34,13 @@ class Speech:
         try:
             history = self.__get_history(voice, style, text)
             if history is not None:
-                return history           
+                return history
+            # https://openspeech.bytedance.com/api/v3/tts/unidirectional
             host = "openspeech.bytedance.com"
-            api_url = f"https://{host}/api/v1/tts"
-            header = {"Authorization": f"Bearer;{self.access_token}"}
+            #api_url = f"https://{host}/api/v1/tts"
+            #header = {"Authorization": f"Bearer;{self.access_token}"}
 
-            request_json = {
-                "app": {
-                    "appid": self.appid,
-                    "token": "access_token",
-                    "cluster": self.cluster
-                },
-                "user": {
-                    "uid": "388808087185088"
-                },
-                "audio": {
-                    "voice_type": voice,
-                    "encoding": "wav",
-                    "speed_ratio": 1.0,
-                    "volume_ratio": 1.0,
-                    "pitch_ratio": 1.0,
-                },
-                "request": {
-                    "reqid": str(uuid.uuid4()),
-                    "text": text,
-                    "text_type": "plain",
-                    "operation": "query",
-                    "with_frontend": 1,
-                    "frontend_type": "unitTson"
-
-                }
-            }
-            response = requests.post(api_url, json.dumps(request_json), headers=header)
-            if "data" in response.json():
-                data = response.json()["data"]
-                file_url = './samples/sample-' + str(int(time.time() * 1000)) + '.wav'
-                with wave.open(file_url, 'wb') as wf:
-                        wf.setnchannels(1)
-                        wf.setsampwidth(2)
-                        wf.setframerate(24000)
-                        wf.writeframes(base64.b64decode(data))
-            else :
-                util.log(1, "[x] 语音转换失败！")
-                file_url = None
-                return file_url
+            file_url=tts_http_stream(txt=text)
             return file_url
            
         except Exception as e :
