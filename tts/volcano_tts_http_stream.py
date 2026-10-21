@@ -66,7 +66,7 @@ def tts_http_stream(txt):
             if not os.path.exists("tts"):
                 os.makedirs("tts")
             #output_file = os.path.join("tts/", f"tts_test.mp3")
-            output_file = '../samples/sample-' + str(int(time.time() * 1000)) + '.mp3'
+            output_file = './samples/sample-' + str(int(time.time() * 1000)) + '.mp3'
             with open(output_file, "wb") as f:
                 f.write(audio_data)
             print(f"file size: {len(audio_data) / 1024:.2f} KB")
