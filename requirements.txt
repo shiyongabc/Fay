@@ -1,7 +1,7 @@
 requests  
 numpy
 pyaudio~=0.2.11
-websockets~=10.4
+websockets>=10.4
 uvicorn<0.35
 ws4py~=0.5.1
 #PyQt5==5.15.10
