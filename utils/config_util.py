@@ -331,6 +331,7 @@ def load_config(force_reload=False):
     global volcano_tts_voice_type
     global start_mode
     global fay_url
+    global linux_lips_tool_patch
     global use_bionic_memory
     global embedding_api_model
     global embedding_api_base_url

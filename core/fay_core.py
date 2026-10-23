@@ -2301,7 +2301,7 @@ class FeiFei:
                         print("cfg.linux_lips_tool_patch=%s"%cfg.linux_lips_tool_patch)
                         try:
                             consolidated_visemes=self.mp3_to_fay_lips(os.path.abspath(file_url),cfg.linux_lips_tool_patch)
-                            
+
                             content["Data"]["Lips"] = consolidated_visemes
 
 
