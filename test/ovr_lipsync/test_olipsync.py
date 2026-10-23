@@ -101,7 +101,7 @@ class LipSyncGenerator:
 if __name__ == "__main__":
     start_time = time.time()
     lip_sync_generator = LipSyncGenerator()
-    viseme_list = lip_sync_generator.generate_visemes("E:\\github\\Fay\\samples\\fay-man.wav")
+    viseme_list = lip_sync_generator.generate_visemes("/mnt/Fay/samples/course_package_player_intro_abin_final.wav")
     print(viseme_list)
     consolidated_visemes = lip_sync_generator.consolidate_visemes(viseme_list)
     print(json.dumps(consolidated_visemes))
