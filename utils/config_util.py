@@ -93,6 +93,7 @@ volcano_tts_cluster = None
 volcano_tts_voice_type = None
 start_mode = None
 fay_url = None
+linux_lips_tool_patch=None
 system_conf_path = None
 config_json_path = None
 use_bionic_memory = None
@@ -561,6 +562,9 @@ def load_config(force_reload=False):
 
     start_mode = system_config.get('key', 'start_mode', fallback=None)
     fay_url = system_config.get('key', 'fay_url', fallback=None)
+    #新增Linux上 唇形数据转换工具路径
+    linux_lips_tool_patch = system_config.get('key', 'linux_lips_tool_patch', fallback=None)
+
     # 如果fay_url为空或None，则动态获取本机IP地址
     if not fay_url:
         from utils.util import get_local_ip
@@ -614,6 +618,7 @@ def load_config(force_reload=False):
 
         'start_mode': start_mode,
         'fay_url': fay_url,
+        'linux_lips_tool_patch':linux_lips_tool_patch,
         'use_bionic_memory': use_bionic_memory,
 
         # Embedding API 配置

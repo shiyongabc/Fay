@@ -3,6 +3,10 @@
 
 #作用是处理交互逻辑，文字输入，语音、文字及情绪的发送、播放及展示输出
 
+import json
+import subprocess
+import tempfile
+import os
 
 import math
 
@@ -2266,8 +2270,7 @@ class FeiFei:
                         util.printInfo(1, interact.data.get("user"), f"通用动作触发: {action_signal.get('code')}")
 
                     #计算lips
-
-
+                    #Windows上 lips转换
                     if platform.system() == "Windows":
 
 
@@ -2293,8 +2296,22 @@ class FeiFei:
 
 
                             util.printInfo(1, interact.data.get("user"),  "唇型数据生成失败")
+                    # Linux lips转换
+                    if platform.system() == "Linux":
+                        print("cfg.linux_lips_tool_patch=%s"%cfg.linux_lips_tool_patch)
+                        try:
+                            consolidated_visemes=self.mp3_to_fay_lips(os.path.abspath(file_url),cfg.linux_lips_tool_patch)
+                            
+                            content["Data"]["Lips"] = consolidated_visemes
 
 
+                        except Exception as e:
+
+
+                            print(e)
+
+
+                            util.printInfo(1, interact.data.get("user"),  "唇型数据生成失败")
                     sent_count = self.__send_human_audio_ordered(
                         content,
                         audio_username,
@@ -2389,6 +2406,43 @@ class FeiFei:
 
             print(e)
 
+    """
+    linux 唇形数据转换
+    """
+
+    def mp3_to_fay_lips(self, mp3_path: str,RHUBARB_BIN:str):
+        """
+         输入 MP3 文件路径，返回 Fay WebSocket Data.Lips 所需的数组。
+         返回格式：[{"Lip": "A", "Time": 120}, ...]，Time 单位为毫秒。
+         """
+        with tempfile.TemporaryDirectory() as tmpdir:
+            wav_path = os.path.join(tmpdir, "audio.wav")
+            # 1. MP3 → WAV（单声道、16kHz，Rhubarb 推荐格式）
+            subprocess.run(
+                ["ffmpeg", "-y", "-loglevel", "error", "-i", mp3_path,
+                 "-ac", "1", "-ar", "16000", wav_path],
+                check=True,
+            )
+
+            # 2. 调用 Rhubarb，输出 JSON 到 stdout 或临时文件
+            json_path = os.path.join(tmpdir, "result.json")
+            subprocess.run(
+                [RHUBARB_BIN, "-f", "json", "--output", json_path, wav_path],
+                check=True,
+            )
+
+            with open(json_path, "r", encoding="utf-8") as f:
+                rhubarb_data = json.load(f)
+
+        # 3. 转换为 Fay 的 Lips 格式
+        fay_lips = []
+        for cue in rhubarb_data["mouthCues"]:
+            duration_ms = round((cue["end"] - cue["start"]) * 1000)
+            fay_lips.append({
+                "Lip": cue["value"],  # Rhubarb 输出 A–H / X 等口型
+                "Time": duration_ms,
+            })
+        return fay_lips
 
 
 
