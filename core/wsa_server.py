@@ -116,7 +116,7 @@ class MyServer:
             util.printInfo(1, "User" if username is None else username, f"WebSocket 连接关闭: {e}")
 
                 
-    async def __handler(self, websocket, path):
+    async def __handler(self, websocket):
         self.isConnect = True
         util.log(1,"websocket连接上:{}".format(self.__port))
         self.on_connect_handler()
@@ -124,8 +124,8 @@ class MyServer:
         unique_id = f"{remote_address[0]}:{remote_address[1]}"
         async with self.lock:
             self.__clients.append({"id" : unique_id, "websocket" : websocket, "username" : "User"})
-        consumer_task = asyncio.create_task(self.__consumer_handler(websocket, path))#接收
-        producer_task = asyncio.create_task(self.__producer_handler(websocket, path))#发送
+        consumer_task = asyncio.create_task(self.__consumer_handler(websocket, websocket.request.path))#接收
+        producer_task = asyncio.create_task(self.__producer_handler(websocket, websocket.request.path))#发送
         done, self.__pending = await asyncio.wait([consumer_task, producer_task], return_when=asyncio.FIRST_COMPLETED)
 
         for task in self.__pending:
